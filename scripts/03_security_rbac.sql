@@ -37,10 +37,6 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA audit    REVOKE ALL ON TABLES FROM PUBLIC;
 -- login (2.3) apenas HERDAM dessas roles -- nunca recebem GRANT direto em
 -- objetos, o que mantém a matriz de permissões auditável em um único lugar.
 
-DROP ROLE IF EXISTS role_operacional;
-DROP ROLE IF EXISTS role_gestao;
-DROP ROLE IF EXISTS role_admin_workflow;
-
 CREATE ROLE role_operacional    NOLOGIN;
 CREATE ROLE role_gestao         NOLOGIN;
 CREATE ROLE role_admin_workflow NOLOGIN;

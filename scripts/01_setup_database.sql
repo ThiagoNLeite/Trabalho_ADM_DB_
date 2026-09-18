@@ -12,7 +12,6 @@
 -- 1. Isolamento de ambiente: banco de dados dedicado da aplicação
 -- -----------------------------------------------------------------------------
 -- Encoding/locale explícitos evitam herdar configuração de outro ambiente.
-DROP DATABASE IF EXISTS movimentador_contas;
 
 CREATE DATABASE movimentador_contas
     ENCODING = 'UTF8'
@@ -36,8 +35,6 @@ SET password_encryption = 'scram-sha-256';
 -- dados de infraestrutura/auditoria (audit). Isso também facilita aplicar
 -- políticas de privilégio por esquema inteiro na Etapa 2.
 -- -----------------------------------------------------------------------------
-DROP SCHEMA IF EXISTS workflow CASCADE;
-DROP SCHEMA IF EXISTS audit CASCADE;
 
 CREATE SCHEMA workflow AUTHORIZATION postgres;
 CREATE SCHEMA audit    AUTHORIZATION postgres;

@@ -12,7 +12,6 @@
 -- =============================================================================
 -- 3.1.a Tabela de log (audit.logged_actions)
 -- =============================================================================
-DROP TABLE IF EXISTS audit.logged_actions;
 
 CREATE TABLE audit.logged_actions (
     id                  BIGSERIAL     PRIMARY KEY,
@@ -121,10 +120,6 @@ COMMENT ON FUNCTION audit.if_modified_func() IS
 -- Requisito mínimo do enunciado: MOVIMENTACOES e CONTAS_WORKFLOW.
 -- Estendemos também a COMENTARIOS por coerência (mesma sensibilidade de
 -- histórico), o que fortalece o relatório forense sem contrariar o escopo.
-
-DROP TRIGGER IF EXISTS trg_audit_movimentacoes  ON workflow.movimentacoes;
-DROP TRIGGER IF EXISTS trg_audit_contas_workflow ON workflow.contas_workflow;
-DROP TRIGGER IF EXISTS trg_audit_comentarios     ON workflow.comentarios;
 
 CREATE TRIGGER trg_audit_movimentacoes
     AFTER INSERT OR UPDATE OR DELETE ON workflow.movimentacoes
