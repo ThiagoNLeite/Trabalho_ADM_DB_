@@ -1,0 +1,76 @@
+You are now connected to database "movimentador_contas" as user "postgres".
+Border style is 2.
+--- 1.1 Linha do tempo completa de eventos válidos (todas as tabelas monitoradas) ---
++----+-------------------------------+--------------------+----------+--------------------------+------------+
+| id |            quando             | quem_logou_no_sgbd | operacao |      tabela_afetada      | pk_afetada |
++----+-------------------------------+--------------------+----------+--------------------------+------------+
+|  1 | 2026-09-11 23:39:37.992466+00 | postgres           | U        | workflow.contas_workflow | 2          |
+|  2 | 2026-09-11 23:39:38.138487+00 | usr_auditor_op     | I        | workflow.movimentacoes   | 4          |
+|  3 | 2026-09-11 23:39:38.139733+00 | usr_auditor_op     | U        | workflow.contas_workflow | 1          |
+|  4 | 2026-09-11 23:39:38.140573+00 | usr_auditor_op     | I        | workflow.comentarios     | 4          |
++----+-------------------------------+--------------------+----------+--------------------------+------------+
+(4 rows)
+
+
+--- 1.2 Autoria detalhada das movimentações de conta, com nome do responsável ---
++-------------------------------+----------------+-------------------+----------------------+------------+--------------+------------------+----------------------------------------------------------------------------+
+|            quando             |   login_sgbd   |    responsavel    | setor_do_responsavel |   conta    | setor_origem |  setor_destino   |                                 observacao                                 |
++-------------------------------+----------------+-------------------+----------------------+------------+--------------+------------------+----------------------------------------------------------------------------+
+| 2026-09-11 23:39:38.138487+00 | usr_auditor_op | Ana Beatriz Souza | Auditoria            | CTA-000010 | Auditoria    | Central de Guias | Auditoria concluída sem pendências. Encaminhada para conferência de guias. |
++-------------------------------+----------------+-------------------+----------------------+------------+--------------+------------------+----------------------------------------------------------------------------+
+(1 row)
+
+
+--- 1.3 Quantidade de ações válidas por usuário técnico (accountability) ---
++-------------------+--------+-------+
+| session_user_name | action | total |
++-------------------+--------+-------+
+| postgres          | U      |     1 |
+| usr_auditor_op    | I      |     2 |
+| usr_auditor_op    | U      |     1 |
++-------------------+--------+-------+
+(3 rows)
+
+
+--- 2.1 Prova indireta: nenhuma alteração (U) ou exclusão (D) jamais foi
+        efetivada nas tabelas de histórico imutável ---
++------------+--------+-------+
+| table_name | action | total |
++------------+--------+-------+
++------------+--------+-------+
+(0 rows)
+
+
+--- 2.2 Como localizar a evidência bruta no log do servidor (rodar no shell,
+        não dentro do psql) ---
+  sudo grep -E "permission denied|ERROR" /var/log/postgresql/postgresql-16-main.log | tail -n 50
+  (ajuste o caminho/versão conforme a instalação; ver README para detalhes)
+
+--- 3.1 Comprovação de que a trilha de auditoria em si nunca foi alterada ---
++-------------------------------------------+
+| eventos_de_alteracao_na_propria_auditoria |
++-------------------------------------------+
+|                                         0 |
++-------------------------------------------+
+(1 row)
+
+
+--- 3.2 Diff OLD vs NEW de uma alteração específica (exemplo: mudança de status) ---
++-------------------------------+-------------------+--------------+---------------+-------------+--------------+
+|         action_tstamp         | session_user_name | status_antes | status_depois | setor_antes | setor_depois |
++-------------------------------+-------------------+--------------+---------------+-------------+--------------+
+| 2026-09-11 23:39:37.992466+00 | postgres          | RECEBIDA     | EM_ANALISE    | 1           | 1            |
+| 2026-09-11 23:39:38.139733+00 | usr_auditor_op    | EM_ANALISE   | ENCAMINHADA   | 1           | 2            |
++-------------------------------+-------------------+--------------+---------------+-------------+--------------+
+(2 rows)
+
+
+--- 3.3 Verificação de coerência: toda movimentação registrada tem contrapartida
+        de auditoria (nenhuma "movimentação fantasma" fora da trilha) ---
++---------------------+-------------------------+
+| total_movimentacoes | total_inserts_auditados |
++---------------------+-------------------------+
+|                   4 |                       1 |
++---------------------+-------------------------+
+(1 row)
+
